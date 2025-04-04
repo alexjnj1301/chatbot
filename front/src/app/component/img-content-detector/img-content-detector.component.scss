@@ -1,0 +1,61 @@
+.img-part {
+  height: 100%;
+  max-width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  margin-left: 2rem;
+}
+
+.divider {
+  margin: 0 2rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.analyse-part {
+  min-width: 40%;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%; /* Assure que l'image ne dépasse pas la largeur du conteneur */
+}
+
+.image-preview {
+  width: 90%;
+  height: auto;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.bounding-box {
+  position: absolute;
+  border: 2px solid red;
+  pointer-events: none;
+  background-color: rgba(255, 0, 0, 0.3);
+}
+
+.label {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  color: white;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2px 5px;
+  border-radius: 4px;
+}

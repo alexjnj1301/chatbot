@@ -1,0 +1,14 @@
+@if (isLoading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+<app-chat-bot></app-chat-bot>
+<div class="test">
+  <mat-tab-group class="tabs">
+    <mat-tab label="Images generator">
+      <app-img-generator></app-img-generator>
+    </mat-tab>
+    <mat-tab label="Image content detector">
+      <app-img-content-detector></app-img-content-detector>
+    </mat-tab>
+  </mat-tab-group>
+</div>

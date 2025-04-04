@@ -1,0 +1,21 @@
+<div class="content">
+  <h3>Bienvenu sur le générateur d'images</h3>
+  <p style="text-align: center">Pour générer une image, veuillez remplir le champs ci dessous. <br>
+    Le prompt doit être ecrit en anglais pour une meilleure compréhension. <br>
+    La génération peut prendre plusieurs minutes</p>
+  <mat-form-field appearance="outline" style="width: 80%">
+    <mat-label>Votre prompt</mat-label>
+    <textarea matInput type="text" class="input" placeholder="Entrez votre prompt" [(ngModel)]="prompt"></textarea>
+  </mat-form-field>
+  <button mat-raised-button color="primary" [disabled]="prompt === ''"
+          (click)="generateImage()">Générer l'image</button>
+
+  @if (imageUrl) {
+    <h4>Voici l'image générée :</h4>
+    <img [src]="imageUrl" alt="Generated Image of {{prompt}}"/>
+
+    <a [href]="imageUrl" download="generated_image.png">
+      <button mat-raised-button color="accent">Télécharger l'image</button>
+    </a>
+  }
+</div>

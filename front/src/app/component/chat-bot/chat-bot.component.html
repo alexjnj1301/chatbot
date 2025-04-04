@@ -1,0 +1,60 @@
+<div class="container">
+	@if (chatId) {
+		<div class="retour" (click)="return()"><mat-icon>keyboard_arrow_left</mat-icon>Retour</div>
+		<div class="messages-display-part">
+			@if (messages.length > 0) {
+				@for (message of messages; track message.time) {
+					<div class="message-bubble" [ngClass]="message.role">
+						<div class="message-header">{{message.role === constants.SENDER_USER ? 'Vous' : constants.SENDER_BOT }} - <span class="date">{{message.time | date: 'hh:mm'}}</span></div>
+						{{message.content}}
+					</div>
+				}
+			} @else {
+				<div class="no-message-to-display">
+					No messages to display in this conversation
+				</div>
+			}
+			@if (isBotTyping) {
+				<div class="message-bubble" [ngClass]="'user'">
+					<div class="message-header">Vous - <span class="date">{{getDate() | date: 'hh:mm'}}</span></div>
+					{{messageToSend?.input_text}}
+				</div>
+				<div class="message-bubble" [ngClass]="'assistant'">
+					<div class="message-header">{{ constants.SENDER_BOT }} - <span class="date">{{getDate() | date: 'hh:mm'}}</span></div>
+					<div class="loader"></div>
+				</div>
+			}
+		</div>
+		<div class="dialog-part">
+			<mat-form-field appearance="outline" style="width: 90%;">
+				<input matInput type="text" placeholder="Entrez votre message ici..." [(ngModel)]="message" (keydown.enter)="message ? send() : ''">
+				<button matSuffix mat-icon-button aria-label="Send" (click)="send()" [disabled]="!message">
+					<mat-icon>send</mat-icon>
+				</button>
+			</mat-form-field>
+		</div>
+	} @else {
+		@if (chats) {
+			<div class="chats-display-container">
+				<h3>Vos chats</h3>
+				<p>Vous pouvez réaccéder à vos anciens chats, ou créer un nouveau chat en envoyant cliquant
+					<a (click)="generateChatId()" class="link">ici</a> un message à l'assistant</p>
+				<div class="chats-display">
+					@for (chat of chats; track chat.id) {
+						<button mat-flat-button (click)="goToChat(chat.chat_ref)">{{chat.chat_ref}}</button>
+					}
+				</div>
+				<div class="dialog-part">
+					<mat-form-field appearance="outline" style="width: 90%;">
+						<input matInput type="text" placeholder="Entrez votre message ici..." [(ngModel)]="message" (keydown.enter)="message ? send() : ''">
+						<button matSuffix mat-icon-button aria-label="Send" (click)="send()" [disabled]="!message">
+							<mat-icon>send</mat-icon>
+						</button>
+					</mat-form-field>
+				</div>
+			</div>
+		} @else {
+			Vous n'avez pas encore de chat, veuillez en <a (click)="generateChatId()">créer un</a>
+		}
+	}
+</div>

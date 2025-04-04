@@ -1,0 +1,43 @@
+<div class="content">
+  <div class="img-part">
+    <input type="file" (change)="onFileSelected($event)" />
+    <button mat-flat-button color="primary" (click)="detect()">Detect</button>
+  </div>
+
+  <mat-divider [vertical]="true" class="divider"></mat-divider>
+
+  <div class="detections-part">
+    <h3>Detections</h3>
+    @for (detection of detections; track detection; let i = $index) {
+      <div class="detection">
+        <div class="detection-content">
+          <p>- {{ detection.label }} ({{ detection.confidence*100 }}%)</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <mat-divider [vertical]="true" class="divider"></mat-divider>
+
+  <div class="analyse-part">
+    <h3>Analyse</h3>
+    @if (imageUrl) {
+      <div class="image-container">
+        <img #imageElement src="{{imageUrl}}" alt="Uploaded Image" class="image-preview" />
+        <div class="overlay">
+          @for (detection of detections; track detection.label) {
+            <div class="bounding-box"
+                 [style.left]="detection.box![0] + 'px'"
+                 [style.top]="detection.box![1] + 'px'"
+                 [style.width]="(detection.box![2] - detection.box![0]) + 'px'"
+                 [style.height]="(detection.box![3] - detection.box![1]) + 'px'">
+              <span class="label">{{ detection.label }} ({{ detection.confidence*100 }}%)</span>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <p>Upload an image to start the analysis</p>
+    }
+  </div>
+</div>
