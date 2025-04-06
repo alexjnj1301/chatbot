@@ -2,7 +2,8 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from chat_bot import chat_with_bot, ChatRequest, generate_chat_id
+from chat_bot import chat_with_bot, ChatRequest, generate_chat_id, save_chat_id, get_chat_ids, SaveChatIdRequest, \
+    get_messages_by_chat_id
 from image_generatorer import generate
 from img_det import image_content_detectortry
 
@@ -42,6 +43,22 @@ def chatWithBot(request: ChatRequest):
     response = chat_with_bot(request)
     return {"response": response[0], "conversation_history": response[1]}
 
+@app.post("/bot/chat/save")
+def saveChatId(request: SaveChatIdRequest):
+    save_chat_id(request)  # Appel à la fonction save_chat
+    return {"message": "Chat ID saved successfully"}
+
+@app.get("/bot/chat/ids")
+def getChatIds():
+    chat_ids = get_chat_ids()
+    return {"chat_ids": chat_ids}
+
+@app.get("/bot/chat/ids/{chat_id}")
+def getMessageByChatId(chat_id: str):
+    return get_messages_by_chat_id(chat_id)
+
 @app.get("/test")
 def test():
     return {"message": "Hello World"}
+
+#TODO: implementer le contexte de l'assistant

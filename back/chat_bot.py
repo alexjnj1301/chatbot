@@ -1,6 +1,5 @@
 import time
 import uuid
-
 from langchain.chat_models import init_chat_model
 from pydantic import BaseModel
 
@@ -9,47 +8,76 @@ def get_api_key():
 
 model = init_chat_model(model="gpt-4o-mini", model_provider="openai", api_key=get_api_key())
 
+# Structure de la requête
 class ChatRequest(BaseModel):
     input_text: str
     chat_id: str
-    conversation_history: list
     time: str
 
-class ConversationHistory(BaseModel):
+# Structure du message de la conversation
+class ChatMessage(BaseModel):
     chat_id: str
     role: str
     content: str
     time: str
 
+class SaveChatIdRequest(BaseModel):
+    chat_id: str
+
+# Générer un chat_id unique
 def generate_chat_id():
     return str(uuid.uuid4()).replace("-", "")[:16]
 
-def chat_with_bot(chat: ChatRequest):
-    if chat.conversation_history is None:
-        chat.conversation_history = []
+# Stockage global pour gérer les chats et les conversations
+chatIds = []  # Tableau des chat_ids
+chatMessages = []  # Tableau des chatMessages
 
-    # update history
-    history = {"chat_id": chat.chat_id, "role": "user", "content": chat.input_text, "time": chat.time}
-    chat.conversation_history.append(history)
+# Sauvegarder un chat_id et son historique de messages
+def save_chat(request: ChatRequest):
+    save_chat_id(SaveChatIdRequest(chat_id=request.chat_id))
+    # Ajouter le message de l'utilisateur
+    user_message = ChatMessage(
+        chat_id=request.chat_id,
+        role="user",
+        content=request.input_text,
+        time=request.time
+    )
+    chatMessages.append(user_message)
 
-    response = model.invoke(chat.conversation_history)
+def save_chat_id(request: SaveChatIdRequest):
+    # Ajouter chat_id si il n'existe pas
+    if request.chat_id not in chatIds:
+        chatIds.append(request.chat_id)
 
-    # update history
-    history = {"chat_id": chat.chat_id, "role": "assistant", "content": response.content, "time": str(time.time())}
-    chat.conversation_history.append(history)
+# Récupérer l'historique des messages pour un chat_id donné
+def get_messages_by_chat_id(chat_id: str):
+    # Filtrer les messages en fonction du chat_id
+    print(chatMessages)
+    return [message for message in chatMessages if message.chat_id == chat_id]
 
-    return response, chat.conversation_history
+# Fonction pour obtenir tous les chat_ids enregistrés
+def get_chat_ids():
+    return chatIds
 
-# exemple de conversation en console
-# conversation_history = []
-#
-# chat_id = generate_chat_id()
-#
-# while True:
-#     user_input = input("You: ")
-#     if user_input.lower() == "exit":
-#         break
-#
-#     response, conversation_history = chat_with_bot(user_input, chat_id, conversation_history)
-#
-#     print(f"Bot: {response.content}")
+# Fonction pour interagir avec le bot
+def chat_with_bot(request: ChatRequest):
+    # Enregistrer le message utilisateur
+    save_chat(request)
+
+    # Récupérer l'historique complet des messages pour ce chat_id
+    conversation_history = get_messages_by_chat_id(request.chat_id)
+
+    # Envoi de la conversation au modèle GPT
+    response = model.invoke([message.dict() for message in conversation_history])
+
+    # Ajouter la réponse du bot dans l'historique
+    bot_message = ChatMessage(
+        chat_id=request.chat_id,
+        role="assistant",
+        content=response.content,
+        time=str(time.time())
+    )
+    chatMessages.append(bot_message)
+
+    # Retourner la réponse et l'historique mis à jour
+    return response, [message.dict() for message in chatMessages if message.chat_id == request.chat_id]

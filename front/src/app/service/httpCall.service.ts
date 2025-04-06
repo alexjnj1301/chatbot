@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
 import { HttpClient } from '@angular/common/http'
 import { ImgContentDetection } from '../models/ImgDetector'
-import { ChatResponse, MessageToSend } from '../models/Chat'
+import { Chat, ChatResponse, Message, MessageToSend } from '../models/Chat'
 
 @Injectable({
   providedIn: 'root'
@@ -29,5 +29,17 @@ export class HttpCallsService {
 
   public generateChatId(): Observable<string> {
     return this.http.get<string>(`${this.BASE_URL}/chat/generate`)
+  }
+
+  public getChats(): Observable<Chat> {
+    return this.http.get<Chat>(`${this.BASE_URL}/bot/chat/ids`)
+  }
+
+  public getMessagesByChatRef(chat_ref: string): Observable<Message[]> {
+    return this.http.get<Message[]>(`${this.BASE_URL}/bot/chat/ids/${chat_ref}`)
+  }
+
+  public saveChat(chatId: string): Observable<string> {
+    return this.http.post<string>(`${this.BASE_URL}/bot/chat/save`, { chat_id: chatId })
   }
 }

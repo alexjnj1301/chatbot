@@ -40,8 +40,8 @@
 				<p>Vous pouvez réaccéder à vos anciens chats, ou créer un nouveau chat en envoyant cliquant
 					<a (click)="generateChatId()" class="link">ici</a> un message à l'assistant</p>
 				<div class="chats-display">
-					@for (chat of chats; track chat.id) {
-						<button mat-flat-button (click)="goToChat(chat.chat_ref)">{{chat.chat_ref}}</button>
+					@for (chat of chats.chat_ids; track chat) {
+						<button mat-flat-button (click)="goToChat(chat)">{{chat}}</button>
 					}
 				</div>
 				<div class="dialog-part">

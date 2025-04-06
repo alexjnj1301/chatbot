@@ -8,6 +8,7 @@ import { DatePipe, NgClass } from '@angular/common'
 import { HttpCallsService } from '../../service/httpCall.service'
 import { SnackBarService } from '../../service/SnackBar-service'
 import { Constants } from '../../constants'
+import { firstValueFrom } from 'rxjs'
 
 @Component({
   selector: 'app-chat-bot',
@@ -31,46 +32,47 @@ export class ChatBotComponent {
   messages: Message[] = []
   messageToSend: MessageToSend | undefined
   isBotTyping: boolean = false
-  chats: Chat[] = []
+  chats: Chat = {'chat_ids': []}
 
   public constructor(private httpCallService: HttpCallsService,
                      public constants: Constants,
                      private snackBarService: SnackBarService) {
-    // this.getChats()
+    this.getChats()
   }
 
   public getDate(): string {
     return new Date().getTime().toString()
   }
 
-  // public getChats(): void {
-  //   this.httpCallService.getChats().subscribe({
-  //     next: (value: Chat[]) => {
-  //       this.chats = value
-  //       console.log(this.chats)
-  //     },
-  //     error: err => {
-  //       console.log(err)
-  //       this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des chats')
-  //     }
-  //   })
-  // }
+  public getChats(): void {
+    this.httpCallService.getChats().subscribe({
+      next: (value: Chat) => {
+        this.chats = value
+      },
+      error: err => {
+        console.log(err)
+        this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des chats')
+      }
+    })
+  }
 
-  // public getMessagesByChatRef(chat_ref: string): void {
-  //   this.httpCallService.getMessagesByChatRef(chat_ref).subscribe({
-  //     next: (value: Message[]) => {
-  //       this.messages = value
-  //       console.log("message du chat " + chat_ref, this.messages)
-  //     },
-  //     error: err => {
-  //       console.log(err)
-  //       this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des messages')
-  //     }
-  //   })
-  // }
+  public getMessagesByChatRef(chat_ref: string): void {
+    this.httpCallService.getMessagesByChatRef(chat_ref).subscribe({
+      next: (value: Message[]) => {
+        this.messages = value
+      },
+      error: err => {
+        console.log(err)
+        this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des messages')
+      }
+    })
+  }
 
-  public send(): void {
-    if(!this.chatId) this.generateChatId()
+  public async send(): Promise<void> {
+    if (!this.chatId) {
+      await this.generateChatId()
+    }
+
     this.isBotTyping = true
     const date = this.getDate()
 
@@ -96,33 +98,25 @@ export class ChatBotComponent {
     this.message = ''
   }
 
-  public generateChatId(): void {
-    this.httpCallService.generateChatId().subscribe({
-      next: value => {
-        this.chatId = value
-        // this.httpCallService.saveChat(this.chatId).subscribe({
-        //   next: value => {
-        //     this.snackBarService.openInfoSnackBar('Chat créé avec succès')
-        //   },
-        //   error: err => {
-        //     console.log(err)
-        //     this.snackBarService.openErrorSnackBar('Erreur lors de la création du chat')
-        //   }
-        // })
-      },
-      error: err => {
-        console.log(err)
-      }
-    })
+  public async generateChatId(): Promise<void> {
+    this.messages = []
+    try {
+      this.chatId = await firstValueFrom(this.httpCallService.generateChatId())
+      await this.httpCallService.saveChat(this.chatId).toPromise()
+      this.snackBarService.openInfoSnackBar('Chat créé avec succès')
+    } catch (err) {
+      console.log(err)
+      this.snackBarService.openErrorSnackBar('Erreur lors de la création du chat')
+    }
   }
 
   public return(): void {
     this.chatId = ''
-    // this.getChats()
+    this.getChats()
   }
 
   public goToChat(chat_ref: string) {
     this.chatId = chat_ref
-    // this.getMessagesByChatRef(chat_ref)
+    this.getMessagesByChatRef(chat_ref)
   }
 }
