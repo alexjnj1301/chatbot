@@ -20,7 +20,5 @@ export interface ChatResponse {
 }
 
 export interface Chat {
-  id: number
-  chat_ref: string
-  user_id: number
+  chat_ids: string[]
 }

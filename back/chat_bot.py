@@ -1,6 +1,5 @@
 import time
 import uuid
-
 from langchain.chat_models import init_chat_model
 from pydantic import BaseModel
 
@@ -21,26 +20,43 @@ class ConversationHistory(BaseModel):
     content: str
     time: str
 
+class SaveChatIdRequest(BaseModel):
+    chat_id: str
+
 def generate_chat_id():
     return str(uuid.uuid4()).replace("-", "")[:16]
+
+chat_data = {}
+def save_chat_id(chat_id):
+    if chat_id not in chat_data:
+        chat_data[chat_id] = {"conversation_history": []}
+
+def get_chat_ids():
+    return list(chat_data.keys())
+
+def get_messages_by_chat_id(chat_id):
+    if chat_id in chat_data:
+        return chat_data[chat_id]["conversation_history"]
+    return None
 
 def chat_with_bot(chat: ChatRequest):
     if chat.conversation_history is None:
         chat.conversation_history = []
 
-    # update history
     history = {"chat_id": chat.chat_id, "role": "user", "content": chat.input_text, "time": chat.time}
     chat.conversation_history.append(history)
 
     response = model.invoke(chat.conversation_history)
 
-    # update history
     history = {"chat_id": chat.chat_id, "role": "assistant", "content": response.content, "time": str(time.time())}
     chat.conversation_history.append(history)
 
+    save_chat_id(chat.chat_id)
+    chat_data[chat.chat_id]["conversation_history"] = chat.conversation_history
+
     return response, chat.conversation_history
 
-# exemple de conversation en console
+# Exemple de conversation en console
 # conversation_history = []
 #
 # chat_id = generate_chat_id()

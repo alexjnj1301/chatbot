@@ -31,46 +31,51 @@ export class ChatBotComponent {
   messages: Message[] = []
   messageToSend: MessageToSend | undefined
   isBotTyping: boolean = false
-  chats: Chat[] = []
+  chats: Chat = {'chat_ids': []}
 
   public constructor(private httpCallService: HttpCallsService,
                      public constants: Constants,
                      private snackBarService: SnackBarService) {
-    // this.getChats()
+    this.getChats()
   }
 
   public getDate(): string {
     return new Date().getTime().toString()
   }
 
-  // public getChats(): void {
-  //   this.httpCallService.getChats().subscribe({
-  //     next: (value: Chat[]) => {
-  //       this.chats = value
-  //       console.log(this.chats)
-  //     },
-  //     error: err => {
-  //       console.log(err)
-  //       this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des chats')
-  //     }
-  //   })
-  // }
+  public getChats(): void {
+    this.httpCallService.getChats().subscribe({
+      next: (value: Chat) => {
+        this.chats = value
+        console.log(this.chats)
+      },
+      error: err => {
+        console.log(err)
+        this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des chats')
+      }
+    })
+  }
 
-  // public getMessagesByChatRef(chat_ref: string): void {
-  //   this.httpCallService.getMessagesByChatRef(chat_ref).subscribe({
-  //     next: (value: Message[]) => {
-  //       this.messages = value
-  //       console.log("message du chat " + chat_ref, this.messages)
-  //     },
-  //     error: err => {
-  //       console.log(err)
-  //       this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des messages')
-  //     }
-  //   })
-  // }
+  public getMessagesByChatRef(chat_ref: string): void {
+    this.httpCallService.getMessagesByChatRef(chat_ref).subscribe({
+      next: (value: Message[]) => {
+        this.messages = value
+        console.log("message du chat " + chat_ref, this.messages)
+      },
+      error: err => {
+        console.log(err)
+        this.snackBarService.openErrorSnackBar('Erreur lors de la récupération des messages')
+      }
+    })
+  }
 
   public send(): void {
-    if(!this.chatId) this.generateChatId()
+    console.log('sending:', this.chatId)
+    if(!this.chatId) {
+      console.log('no chat id, generating new one')
+      this.generateChatId()
+      console.log('chat id generated:', this.chatId)
+    }
     this.isBotTyping = true
     const date = this.getDate()
 
@@ -100,15 +105,16 @@ export class ChatBotComponent {
     this.httpCallService.generateChatId().subscribe({
       next: value => {
         this.chatId = value
-        // this.httpCallService.saveChat(this.chatId).subscribe({
-        //   next: value => {
-        //     this.snackBarService.openInfoSnackBar('Chat créé avec succès')
-        //   },
-        //   error: err => {
-        //     console.log(err)
-        //     this.snackBarService.openErrorSnackBar('Erreur lors de la création du chat')
-        //   }
-        // })
+        console.log('chat id generated dans methode:', this.chatId)
+        this.httpCallService.saveChat(this.chatId).subscribe({
+          next: value => {
+            this.snackBarService.openInfoSnackBar('Chat créé avec succès')
+          },
+          error: err => {
+            console.log(err)
+            this.snackBarService.openErrorSnackBar('Erreur lors de la création du chat')
+          }
+        })
       },
       error: err => {
         console.log(err)
@@ -118,11 +124,11 @@ export class ChatBotComponent {
 
   public return(): void {
     this.chatId = ''
-    // this.getChats()
+    this.getChats()
   }
 
   public goToChat(chat_ref: string) {
     this.chatId = chat_ref
-    // this.getMessagesByChatRef(chat_ref)
+    this.getMessagesByChatRef(chat_ref)
   }
 }
