@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms'
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input'
 import { HttpCallsService } from '../../service/httpCall.service'
 import { MatButton } from '@angular/material/button'
+import { MatProgressSpinner } from '@angular/material/progress-spinner'
 
 @Component({
   selector: 'app-img-generator',
@@ -11,7 +12,8 @@ import { MatButton } from '@angular/material/button'
     MatButton,
     MatInput,
     MatLabel,
-    MatFormField
+    MatFormField,
+    MatProgressSpinner
   ],
   templateUrl: './img-generator.component.html',
   styleUrl: './img-generator.component.scss'

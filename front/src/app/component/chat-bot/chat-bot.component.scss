@@ -10,6 +10,31 @@
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
+.close-button {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
+.bubble {
+  background-color: #0078ac;
+  color: white;
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    cursor: pointer;
+    background-color: #005f8c;
+  }
+}
+
 .retour {
   position: absolute;
   top: 1rem;

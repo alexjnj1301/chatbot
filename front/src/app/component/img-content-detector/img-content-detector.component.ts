@@ -3,13 +3,15 @@ import { HttpCallsService } from '../../service/httpCall.service'
 import { detection, ImgContentDetection } from '../../models/ImgDetector'
 import { MatButton } from '@angular/material/button'
 import { MatDivider } from '@angular/material/divider'
+import { MatProgressSpinner } from '@angular/material/progress-spinner'
 
 @Component({
   selector: 'app-img-content-detector',
   templateUrl: './img-content-detector.component.html',
   imports: [
     MatDivider,
-    MatButton
+    MatButton,
+    MatProgressSpinner
   ],
   styleUrls: ['./img-content-detector.component.scss'],
 })
@@ -23,6 +25,7 @@ export class ImgContentDetectorComponent {
   imageHeight: number = 0
   imageDisplayWidth: number = 0
   imageDisplayHeight: number = 0
+  isLoading: boolean = false
 
   public constructor(private httpService: HttpCallsService) {}
 
@@ -55,14 +58,16 @@ export class ImgContentDetectorComponent {
   }
 
   public detect(): void {
+    this.isLoading = true
     if (this.selectedFile) {
       this.httpService.detectObjects(this.selectedFile).subscribe({
         next: (response: ImgContentDetection) => {
           this.detections = this.adjustBoundingBoxes(response.detections)
-          console.log('Detected objects:', this.detections)
+          this.isLoading = false
         },
         error: (error: Error) => {
           console.error('Error detecting objects:', error)
+          this.isLoading = false
         },
       })
     }

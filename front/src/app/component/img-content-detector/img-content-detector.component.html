@@ -8,6 +8,9 @@
 
   <div class="detections-part">
     <h3>Detections</h3>
+    @if (isLoading) {
+      <mat-spinner></mat-spinner>
+    }
     @for (detection of detections; track detection; let i = $index) {
       <div class="detection">
         <div class="detection-content">

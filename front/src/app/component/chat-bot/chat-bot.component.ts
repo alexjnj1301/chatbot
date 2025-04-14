@@ -9,6 +9,9 @@ import { HttpCallsService } from '../../service/httpCall.service'
 import { SnackBarService } from '../../service/SnackBar-service'
 import { Constants } from '../../constants'
 import { firstValueFrom } from 'rxjs'
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
+import { faCommentDots, faCommentSlash } from '@fortawesome/free-solid-svg-icons'
+import { MatTooltip } from '@angular/material/tooltip'
 
 @Component({
   selector: 'app-chat-bot',
@@ -22,6 +25,8 @@ import { firstValueFrom } from 'rxjs'
     NgClass,
     DatePipe,
     MatButton,
+    FontAwesomeModule,
+    MatTooltip
   ],
   templateUrl: './chat-bot.component.html',
   styleUrl: './chat-bot.component.scss'
@@ -33,6 +38,7 @@ export class ChatBotComponent {
   messageToSend: MessageToSend | undefined
   isBotTyping: boolean = false
   chats: Chat = {'chat_ids': []}
+  openDialog: boolean = false
 
   public constructor(private httpCallService: HttpCallsService,
                      public constants: Constants,
@@ -119,4 +125,11 @@ export class ChatBotComponent {
     this.chatId = chat_ref
     this.getMessagesByChatRef(chat_ref)
   }
+
+  public setOpenDialog(): void {
+    this.openDialog = !this.openDialog
+  }
+
+  protected readonly faCommentSlash = faCommentSlash
+  protected readonly faCommentDots = faCommentDots
 }

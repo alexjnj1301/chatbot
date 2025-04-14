@@ -49,10 +49,19 @@ def save_chat_id(request: SaveChatIdRequest):
     if request.chat_id not in chatIds:
         chatIds.append(request.chat_id)
 
+# Charger le fichier de contexte
+def load_context_from_file(file_path: str):
+    try:
+        with open(file_path, 'r') as f:
+            context = f.read()
+        return context
+    except Exception as e:
+        print(f"Erreur lors du chargement du fichier de contexte : {e}")
+        return ""
+
 # Récupérer l'historique des messages pour un chat_id donné
 def get_messages_by_chat_id(chat_id: str):
     # Filtrer les messages en fonction du chat_id
-    print(chatMessages)
     return [message for message in chatMessages if message.chat_id == chat_id]
 
 # Fonction pour obtenir tous les chat_ids enregistrés
@@ -66,6 +75,17 @@ def chat_with_bot(request: ChatRequest):
 
     # Récupérer l'historique complet des messages pour ce chat_id
     conversation_history = get_messages_by_chat_id(request.chat_id)
+
+    # Si un fichier de contexte est fourni, charger son contenu et l'ajouter à l'historique
+    context = load_context_from_file('context.txt')
+    if context:
+        context_message = ChatMessage(
+            chat_id=request.chat_id,
+            role="assistant",
+            content=context,
+            time=str(time.time())
+        )
+        conversation_history.insert(0, context_message)  # Ajouter le contexte au début de l'historique
 
     # Envoi de la conversation au modèle GPT
     response = model.invoke([message.dict() for message in conversation_history])
